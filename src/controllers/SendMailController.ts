@@ -10,6 +10,7 @@ class SendMailController {
 
     async execute(request: Request, response: Response) {
         const { email, survey_id } = request.body;
+        const pathTemplateNPS = resolve(__dirname, '..', 'views', 'emails', 'npsMail.hbs');
 
         const usersRepository = getCustomRepository(UsersRepository);
         const surveysRepository = getCustomRepository(SurveysRepository);
@@ -32,25 +33,24 @@ class SendMailController {
         }
 
         const surveyUserAlreadyExists = await surveysUsersRepository.findOne({
-            where: [{ user_id: userAlreadyExists.id }, { value: null }],
+            where: { user_id: userAlreadyExists.id, value: null },
             relations: ['user', 'survey']
         });
 
-        const pathTemplateNPS = resolve(__dirname, '..', 'views', 'emails', 'npsMail.hbs');
+        
         const contextTemplate = {
             name: userAlreadyExists.name,
             title: surveyAlreadyExists.title,
             description: surveyAlreadyExists.description,
-            user_id: userAlreadyExists.id,
+            id: "",
             link: process.env.URL_MAIL
         };
 
         if(surveyUserAlreadyExists) {
+            contextTemplate.id = surveyUserAlreadyExists.id;
             await SendMailService.execute(email, surveyAlreadyExists.title, contextTemplate, pathTemplateNPS);
             return response.json(surveyUserAlreadyExists);
         }
-
-        
 
         const surveyUser = surveysUsersRepository.create({
             user_id: userAlreadyExists.id,
@@ -58,6 +58,7 @@ class SendMailController {
         });
 
         await surveysUsersRepository.save(surveyUser);
+        contextTemplate.id = surveyUser.id;
 
         await SendMailService.execute(email, surveyAlreadyExists.title, contextTemplate, pathTemplateNPS);
 
