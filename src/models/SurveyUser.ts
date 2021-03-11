@@ -26,7 +26,7 @@ class SurveyUser {
     created_at: Date;
 
     @Column()
-    value: string;
+    value: number;
 
     constructor() {
         if(!this.id) this.id = uuid();
