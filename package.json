@@ -8,8 +8,7 @@
     "typeorm": "ts-node-dev ./node_modules/typeorm/cli.js",
     "migrations": "npm run typeorm migration:run",
     "jest": "./node_modules/.bin/jest",
-    "test": "set NODE_ENV=test&&jest",
-    "posttest": "rm ./src/database/database.test.sqlite"
+    "test": "set NODE_ENV=test&&jest -i"
   },
   "keywords": [],
   "author": "",
